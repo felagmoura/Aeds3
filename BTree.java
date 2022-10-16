@@ -34,7 +34,7 @@ public class BTree<TKey extends Comparable<TKey>, TValue> {
 	public TValue search(TKey key) {
 		BTreeLeafNode<TKey, TValue> leaf = this.findLeafNodeShouldContainKey(key);
 		int index = leaf.search(key);
-		return (index == -1) ? null : leaf.getValue(index);
+		return (index == -1) ? null : leaf.getValue(index); //percorre de forma recursiva
 	}
 	
 	/**

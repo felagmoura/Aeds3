@@ -41,10 +41,11 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey> {
 	}
 	
 	
-	/* The codes below are used to support insertion operation */
+	/* 
+	Os codigos abaixo sao usados para suportas operacoes de insercao*/
 	
 	private void insertAt(int index, TKey key, BTreeNode<TKey> leftChild, BTreeNode<TKey> rightChild) {
-		// move space for the new key
+		// abre espaço para nova chave
 		for (int i = this.getKeyCount() + 1; i > index; --i) {
 			this.setChild(i, this.getChild(i - 1));
 		}
@@ -60,7 +61,7 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey> {
 	}
 	
 	/**
-	 * When splits a internal node, the middle key is kicked out and be pushed to parent node.
+	 * Quando se divide um no interno, a chave do meio sobe para o pai
 	 */
 	@Override
 	protected BTreeNode<TKey> split() {
@@ -85,13 +86,13 @@ class BTreeInnerNode<TKey extends Comparable<TKey>> extends BTreeNode<TKey> {
 	
 	@Override
 	protected BTreeNode<TKey> pushUpKey(TKey key, BTreeNode<TKey> leftChild, BTreeNode<TKey> rightNode) {
-		// find the target position of the new key
+		// acha a posicao alvo da nova chave
 		int index = this.search(key);
 		
-		// insert the new key
+		// insere a nova cahve
 		this.insertAt(index, key, leftChild, rightNode);
 
-		// check whether current node need to be split
+		// checa se o no atual precisa ser balanceado
 		if (this.isOverflow()) {
 			return this.dealOverflow();
 		}

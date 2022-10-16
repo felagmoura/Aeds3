@@ -44,15 +44,15 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> {
 	
 	
 	/**
-	 * Search a key on current node, if found the key then return its position,
-	 * otherwise return -1 for a leaf node, 
-	 * return the child node index which should contain the key for a internal node.
+	 * procura a chave no nó atual, se achada retorna sua posicao,
+	 * se nao retorna -1 para um nó folha, 
+	 * retorna o index do nó filhoque deve conter a chave apra um nó interno.
 	 */
 	public abstract int search(TKey key);
 	
 	
 	
-	/* The codes below are used to support insertion operation */
+	/* Os codigos abaixo sao para suportar operacoes de insercao */
 	
 	public boolean isOverflow() {
 		return this.getKeyCount() == this.keys.length;
@@ -69,14 +69,14 @@ abstract class BTreeNode<TKey extends Comparable<TKey>> {
 		}
 		newRNode.setParent(this.getParent());
 		
-		// maintain links of sibling nodes
+		// mantem as ligacoes enter os nós irmaos
 		newRNode.setLeftSibling(this);
 		newRNode.setRightSibling(this.rightSibling);
 		if (this.getRightSibling() != null)
 			this.getRightSibling().setLeftSibling(newRNode);
 		this.setRightSibling(newRNode);
 		
-		// push up a key to parent internal node
+		// sobe uma chave para o nó pai
 		return this.getParent().pushUpKey(upKey, this, newRNode);
 	}
 	
