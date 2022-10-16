@@ -19,7 +19,6 @@ public class BTree<TKey extends Comparable<TKey>, TValue> {
 	public void insert(TKey key, TValue value) {
 		BTreeLeafNode<TKey, TValue> leaf = this.findLeafNodeShouldContainKey(key);
 		leaf.insertKey(key, value);
-		System.out.println("Inseriu na árvore: ID " + key + " Valor: " + value);
 		
 		if (leaf.isOverflow()) {
 			BTreeNode<TKey> n = leaf.dealOverflow();

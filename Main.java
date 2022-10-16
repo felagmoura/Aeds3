@@ -22,13 +22,14 @@ public class Main {
 
         
         CRUD arquivo = new CRUD();
+        arquivo.createBTree();
         OrdenacaoExterna ordenar = new OrdenacaoExterna (arquivo);
 
         HashExtensivel he = new HashExtensivel ();
         
         for (int i = 0; i < 10; i++)
             he.diretorio.inserir(i, i+5);
- /*                 
+                 
         do {
             opcao = menu_opcoes ();
             op = determina_operacao(opcao);
