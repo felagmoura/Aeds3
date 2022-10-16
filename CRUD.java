@@ -25,7 +25,7 @@ public class CRUD {
     protected final long NUM_EXCLUIDOS_END = 8;
     protected int num_excluidos;
 
-    protected final long INICIO_REGISTROS = 12;
+    final static long INICIO_REGISTROS = 12;
 
     protected RandomAccessFile arquivo;
 
@@ -34,6 +34,8 @@ public class CRUD {
     protected byte[] registro;
     protected Conta temp;
     protected long ptr = INICIO_REGISTROS;
+
+    protected static BTree arvore = new BTree<>();
 
     //-------------------------------------------------------------------//
     //------------------------- FUNCOES ---------------------------------//
@@ -58,6 +60,36 @@ public class CRUD {
         }
 
         atualizar_cabecalho();
+    }
+
+    // funcao para recriar arvore B+ em memória primária a partir do arquivo de registros
+    public void createBTree (){
+        try{
+        temp = new Conta();
+        int idConta;
+        long pos;
+
+
+        ptr = INICIO_REGISTROS;
+            //percorre o registro pegando as ids e posicoes de ponteiro especificas de cada insercao
+        for (int i = 0; i < num_registros && ptr < arquivo.length(); i++, ptr += len_registro + INT_TAM + CHAR_TAM) {
+            
+            arquivo.seek(ptr);
+            pos = arquivo.getFilePointer();
+            
+            lapide = arquivo.readChar();
+            len_registro = arquivo.readInt();
+
+            registro = new byte[len_registro];
+                
+            arquivo.read(registro);
+            temp.byteArrayInput(registro);
+            idConta = temp.getID();
+            arvore.insert(idConta, pos); //chama a funcao de insercao na arvore com os valores especificos em cada chamada
+        }
+        } catch(Exception  e){
+            e.printStackTrace();
+        }
     }
 
     //-------------------------------------------------------------------//
@@ -164,7 +196,7 @@ public class CRUD {
     public void ler_registro (int id) throws IOException {
         temp = buscar(id);
         
-        if (temp.id == id) 
+     if (temp.id == id) 
             temp.imprimir();
         else 
             System.out.println("//\n  ======================================\n"

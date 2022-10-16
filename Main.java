@@ -1,5 +1,6 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Scanner;
 
 public class Main {
@@ -10,7 +11,7 @@ public class Main {
 
     static Scanner scr = new Scanner (System.in, "UTF8");
     public static void main(String[] args) throws FileNotFoundException, IOException, Exception { 
-        /* char opcao;
+         char opcao;
         int id;
         int id_pagador;
         int id_recebedor;
@@ -21,15 +22,15 @@ public class Main {
 
         
         CRUD arquivo = new CRUD();
-        OrdenacaoExterna ordenar = new OrdenacaoExterna (arquivo); */
+        arquivo.createBTree();
 
-        HashExtensivel he = new HashExtensivel(1, 3);
+        /*HashExtensivel he = new HashExtensivel(1, 3);
         for (int i = 0; i < 26; i++) {
             he.diretorio.inserir(i, i*20, false);
-        }
+        }*/
 
         //he.diretorio.imprimir();
-     /*            
+                 
         do {
             opcao = menu_opcoes ();
             op = determina_operacao(opcao);
@@ -61,16 +62,14 @@ public class Main {
                 case Ler_Registro:
                     id = get_id();
                     arquivo.ler_registro(id);
+
+                  // System.out.println("Posição do ID: "+ (long)CRUD.arvore.search(id));
+                  // arquivo.ler_registro((long)CRUD.arvore.search(id));
                     break;
 
                 case Imprimir_Arquivos:
                     arquivo.imprimir_arquivo();
                     break;
-
-                case Ordenar:
-                    ordenar.intercalacao_balanceada();
-                    break;
-            
                 case Atualizar:
                     id = get_id();
                     conta = atualizar_dados(new Conta(), arquivo);
@@ -90,9 +89,10 @@ public class Main {
                     break;
             }
         } while (op != Operacao.Encerrar);
-    */     
+         
         scr.close();
     }
+
 
     public static char menu_opcoes () {
         char opcao;
