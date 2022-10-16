@@ -59,6 +59,10 @@ public class Conta {
         this.saldo = 0;
     }
 
+    public int getID(){
+        return id;
+    }
+
     //-------------------------------------------------------------------//
     // TRANFORMA O OBJETO EM UM ARRAY DE BITES
 

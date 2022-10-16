@@ -1,5 +1,6 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Scanner;
 
 public class Main {
@@ -59,16 +60,14 @@ public class Main {
                 case Ler_Registro:
                     id = get_id();
                     arquivo.ler_registro(id);
+
+                  // System.out.println("Posição do ID: "+ (long)CRUD.arvore.search(id));
+                  // arquivo.ler_registro((long)CRUD.arvore.search(id));
                     break;
 
                 case Imprimir_Arquivos:
                     arquivo.imprimir_arquivo();
                     break;
-
-                case Ordenar:
-                    ordenar.intercalacao_balanceada();
-                    break;
-            
                 case Atualizar:
                     id = get_id();
                     conta = atualizar_dados(new Conta(), arquivo);
@@ -88,9 +87,10 @@ public class Main {
                     break;
             }
         } while (op != Operacao.Encerrar);
-       */
+         
         scr.close();
     }
+
 
     public static char menu_opcoes () {
         char opcao;
