@@ -10,7 +10,7 @@ public class Main {
 
     static Scanner scr = new Scanner (System.in, "UTF8");
     public static void main(String[] args) throws FileNotFoundException, IOException, Exception { 
-        /* char opcao;
+        char opcao;
         int id;
         int id_pagador;
         int id_recebedor;
@@ -21,15 +21,13 @@ public class Main {
 
         
         CRUD arquivo = new CRUD();
-        OrdenacaoExterna ordenar = new OrdenacaoExterna (arquivo); */
+        OrdenacaoExterna ordenar = new OrdenacaoExterna (arquivo);
 
-        HashExtensivel he = new HashExtensivel(1, 3);
-        for (int i = 0; i < 26; i++) {
-            he.diretorio.inserir(i, i*20, false);
-        }
-
-        //he.diretorio.imprimir();
-     /*            
+        HashExtensivel he = new HashExtensivel ();
+        
+        for (int i = 0; i < 10; i++)
+            he.diretorio.inserir(i, i+5);
+ /*                 
         do {
             opcao = menu_opcoes ();
             op = determina_operacao(opcao);
@@ -90,7 +88,7 @@ public class Main {
                     break;
             }
         } while (op != Operacao.Encerrar);
-    */     
+       */
         scr.close();
     }
 

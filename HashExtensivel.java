@@ -1,3 +1,5 @@
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -6,291 +8,258 @@ import java.util.HashMap;
 import java.util.Map;
 
 class HashExtensivel {
+    final char CHAT_TAM = 2;
+    final int INT_TAM = 4;
+    final long LONG_TAM = 8;
+    
     Diretorio diretorio;
 
-    RandomAccessFile arqIndex;
-    final String PATH = "index.db";
-    long ptr;
+    RandomAccessFile arqDir;
+    final String PATH_DIR = "0diretorio.db";
 
-    HashExtensivel (int profundidade, int bucket_tamanho) throws FileNotFoundException {
-        arqIndex = new RandomAccessFile(PATH, "rw");
-        diretorio = new Diretorio(profundidade, bucket_tamanho);
+    RandomAccessFile arqIndex;
+    final String PATH_INDEX = "0index_hash.db";
+    long ptr_index;
+
+    final int BUCKET_TAM = 4;   
+
+    int profundidade_global;
+
+    HashExtensivel () throws FileNotFoundException,IOException {
+        arqDir = new RandomAccessFile(PATH_DIR, "rw");
+        arqIndex = new RandomAccessFile(PATH_INDEX, "rw");
+
+        diretorio = new Diretorio();
     }
     
-    static class Bucket {
-        int profundidade;
-        int tamanho;
-        Map <Integer, Long> registros = new HashMap<Integer, Long>();
+    class Bucket {
+        final int NULO = -1;
+        char lapide;
+        int id;
+        long end;
+        int num_registros;
+        int profundidade_local;
+        long ptr;
+        int id_bucket;
 
-        Bucket (int profundidade, int tamanho) {
-            this.profundidade = profundidade;
-            this.tamanho = tamanho;
+        Bucket (int bloco_pos) throws IOException {
+            
+            profundidade_local = profundidade_global;
+            num_registros = 0;
+            id = -1;
+            end = -1;
+
+            ptr_index = arqIndex.getFilePointer();
+
+            arqIndex.writeInt(bloco_pos);
+            arqIndex.writeInt(profundidade_local);
+            arqIndex.writeInt(num_registros);
+
+            for (int i = 0; i < BUCKET_TAM; i++) {
+                arqIndex.writeChar(' ');
+                arqIndex.writeInt(id);
+                arqIndex.writeLong(end);
+            }
         }
 
-        int inserir (int id, long end) throws IOException {            
-            if (bucket_cheio()) return 0;
+        int inserir (int id, long end) throws IOException {
+            long ptr_registros;
             
-            for (Map.Entry <Integer, Long> it : registros.entrySet())
-                if (it.getKey() == id) return -1;
+            if (bucket_cheio()) return 0;
 
-            registros.put(id, end);
+            id_bucket = arqIndex.readInt();
+            profundidade_local = arqIndex.readInt();
+
+            ptr = arqIndex.getFilePointer();
+            num_registros = arqIndex.readInt();
+
+            for (int i = 0; i < BUCKET_TAM; i++) {
+                ptr_registros = arqIndex.getFilePointer();
+                
+                this.lapide = arqIndex.readChar();
+                this.id = arqIndex.readInt();
+                this.end = arqIndex.readLong();
+
+                if (this.id == NULO) {
+                    arqIndex.seek(ptr_registros);
+                    
+                    arqIndex.writeChar(lapide);
+                    arqIndex.writeInt(id);
+                    arqIndex.writeLong(end);
+
+                    break;
+                }
+                
+                if (this.id == id) return -1;
+                
+                ptr_registros = arqIndex.getFilePointer();
+                arqIndex.seek(ptr_registros);
+            }
+            
+            arqIndex.seek(ptr);
+            arqIndex.writeInt(++num_registros);
+
             return 1;
         }
 
-        boolean remover (int id) {            
+        public int getProfundidade() throws IOException {
+            int profundidade;
+            
+            ptr = arqIndex.getFilePointer() + INT_TAM;
+            arqIndex.seek(ptr);
 
-            if (registros.get(id) == null)
-                return false;
-            else
-                registros.remove(id);
-            return true;
-        }
-
-        boolean atualizar (int id, long end) {
-            if (registros.get(id) == null)
-                return false;
-            else
-                registros.replace(id, end);
-            return true;
-        }
-
-        void imprimir () {
-            for (Map.Entry <Integer, Long> it : registros.entrySet())
-                System.out.print("[" + it.getKey() + "; " + it.getValue() + "]");
-            System.out.println("\n");
-        }
-
-        boolean bucket_cheio () {
-            if (registros.size() == tamanho) 
-                return true;
-            else
-                return false;
-        }
-
-        boolean bucket_vazio () {
-            if (registros.size() == 0) 
-                return true;
-            else
-                return false;
-        }
-    
-        int getProfundidade () {
+            profundidade = arqIndex.readInt();
+            
             return profundidade;
         }
 
-        int aumentaProfundidade () {
-            return ++profundidade;
+        public int aumentaProfundidade() throws IOException {
+            int profundidade;
+            
+            ptr = arqIndex.getFilePointer() + INT_TAM;
+            arqIndex.seek(ptr);
+
+            profundidade = arqIndex.readInt();
+
+            arqIndex.writeInt(++profundidade);
+            
+            return profundidade;
         }
 
-        int diminuiProfundidade () {
-            return --profundidade;
-        }
-    
-        Map <Integer, Long> copy () {
-            Map <Integer, Long> temp = registros;
-            return temp;
+        public int diminuiProfundidade() throws IOException {
+            int profundidade;
+            
+            ptr = arqIndex.getFilePointer() + INT_TAM;
+            arqIndex.seek(ptr);
+
+            profundidade = arqIndex.readInt();
+
+            arqIndex.writeInt(--profundidade);
+            
+            return profundidade;
         }
 
-        void clear () {
-            registros.clear();
+        boolean bucket_cheio () {
+            return num_registros == BUCKET_TAM;
+        }
+
+        boolean bucket_vazio () {
+            return num_registros == 0;
         }
     }
 
-    static class Diretorio {
-        int profundidade_global;
-        int bucket_tamanho;
+    class Diretorio {
+        
         ArrayList <Bucket> buckets = new ArrayList<Bucket>();
+        Map <Integer, Long> mapDir = new HashMap<Integer, Long>();
+        long ptr;
 
-        Diretorio (int profundidade, int bucket_tamanho) {
-            this.profundidade_global = profundidade;
-            this.bucket_tamanho = bucket_tamanho;
+        Diretorio () throws IOException {
+            
+            if (arqDir.length() == 0) {
+                profundidade_global = 1;
+                arqDir.writeInt(profundidade_global);
 
-            for (int i = 0; i < 1 << profundidade; i++) {
-                buckets.add(new Bucket(profundidade, bucket_tamanho));
+                for (int bucket_pos = 0; bucket_pos < 1 << profundidade_global; bucket_pos++) {
+                    ptr = arqDir.getFilePointer();
+                    buckets.add(new Bucket(bucket_pos));
+                    mapDir.put(bucket_pos, ptr);
+
+                    arqDir.writeInt(bucket_pos);
+                    arqDir.writeLong(ptr_index);
+                }
+            }
+
+            else {
+                arqDir.seek(0);
+                profundidade_global = arqDir.readInt();
             }
         }
 
         int hash (int id) {
             return id & ((1 << profundidade_global) - 1);
+/*             int bucket_pos = id & ((1 << profundidade_global) - 1);
+
+            ptr = mapDir.get(bucket_pos);
+
+            arqDir.
+
+            int profundidade_local = buckets.get(bucket_pos).getProfundidade();
+            
+            if (profundidade_local < profundidade_global)
+                bucket_pos = bucket_pos & ((1 << profundidade_local) - 1);
+            
+            return bucket_pos;
+ */        }
+
+        void aponta_para_bucket (int bucket_pos) throws IOException {
+            ptr = mapDir.get(bucket_pos);
+            arqDir.seek(ptr + INT_TAM);
+
+            ptr_index = arqDir.readLong();
+            arqIndex.seek(ptr_index);
         }
 
-        int pairIndex (int bucket_pos, int profundidade) {
+        int getNovoIndex (int bucket_pos, int profundidade) {
             return bucket_pos ^ (1 << (profundidade - 1));
         }
 
-        String bucket_id (int pos) {
-            int profundidade = buckets.get(pos).getProfundidade();
-            String s = new String();
+        void grow () throws IOException {
+            int index_novo;
 
-            while (pos > 0 && profundidade > 0) {
-                s = (pos % 2 == 0 ? "0" : "1") + s;
-                pos /= 2;
-                profundidade--;
-            }
-
-            while (profundidade > 0) {
-                s = "0" + s;
-                profundidade--;
-            }
-
-            return s;
-        }
-
-        void grow (int profundidade_local) {
-            for (int i = 0; i < 1 << profundidade_global; i++)
-                buckets.add(new Bucket(profundidade_local, bucket_tamanho));
-            profundidade_global++;
-        }
-
-        void shrink () {
-            int i;
-
-            for( i = 0 ; i < buckets.size() ; i++ ) {
-                if(buckets.get(i).getProfundidade() == profundidade_global) {
-                    return;
-                }
-            }
-
-            profundidade_global--;
-
-            for(i = 0 ; i < 1 << profundidade_global ; i++ )
-                buckets.remove(buckets.size() - 1);
-        }
-
-        void inserir (int id, long end, boolean reinserido) throws IOException {
-            int status;
-            int bucket_pos = hash (id);
+            arqDir.seek(arqDir.length());
+            arqIndex.seek(arqIndex.length());
             
+            for (int bucket_pos = 0; bucket_pos < 1 << profundidade_global; bucket_pos++) {
+                ptr = arqDir.getFilePointer();
+                index_novo = getNovoIndex(bucket_pos, profundidade_global + 1);
+                
+                buckets.add(new Bucket(index_novo));
+                mapDir.put(index_novo, ptr);
+
+                arqDir.writeInt(index_novo);
+                arqDir.writeLong(mapDir.get(bucket_pos));
+            }
+
+            arqDir.seek(0);
+            arqDir.writeInt(++profundidade_global);
+        }
+
+        void inserir (int id, long end) throws IOException {
+            int status;
+            int bucket_pos = hash(id);
+
+            
+            aponta_para_bucket (bucket_pos);
             status = buckets.get(bucket_pos).inserir(id, end);
 
-            if (status == 1) {
-                if (!reinserido) 
-                    System.out.println("Chave " + id + " inserida em: " + bucket_id(bucket_pos));
-                else
-                    System.out.println("movido");
-            }
-
+            if (status == 1) 
+                System.out.println("Chave [" + id + "] inserida no bucket: [" + bucket_pos + "]");
+            
             else if (status == 0) {
                 split (bucket_pos);
-                inserir (id, end, reinserido);
-            }
-
-            else 
-                System.out.println("id já existe");
-
-        }
-    
-        void remover (int id, int modo) {
-            int bucket_no = hash(id);
-
-            if(buckets.get(bucket_no).remover(id))
-                System.out.println("Removido");
-            
-            if(modo > 0) {
-                if(buckets.get(bucket_no).bucket_vazio() && buckets.get(bucket_no).getProfundidade() > 1)
-                    merge(bucket_no);
-            }
-            if(modo > 1) {
-                shrink();
-            }
-        }
-
-        void atualizar (int id, long end) {
-            int bucket_pos = hash(id);
-            buckets.get(bucket_pos).atualizar(id, end);
-        }
-
-        void imprimir () {
-            int i, j;
-            int profundidade_local;
-
-            System.out.println("Profundidade Global: " + profundidade_global);
-
-            for (i = 0; i < buckets.size(); i++) {
-                profundidade_local = buckets.get(i).getProfundidade();
-                
-                for (j = profundidade_local; j < profundidade_global; j++) {
-                    System.out.print(" " + i + " => ");
-                    buckets.get(i).imprimir();
-                }
+                inserir(id, end);
             }
         }
 
         void split (int bucket_pos) throws IOException {
             int profundidade_local;
             int index_novo;
-            int index_diff;
-            int dir_size;
-            int i;
 
-            Map <Integer, Long> temp = new HashMap<Integer, Long>();
-            
-
+            aponta_para_bucket (bucket_pos);
             profundidade_local = buckets.get(bucket_pos).aumentaProfundidade();
-            if (profundidade_local > profundidade_global) grow(profundidade_local);
 
-            index_novo = pairIndex(bucket_pos, profundidade_local);
+            if (profundidade_local > getProfundidadeGlobal()) grow();
 
-            temp = buckets.get(bucket_pos).copy();
-            buckets.get(bucket_pos).clear();
-
-            for (Map.Entry <Integer, Long> it : temp.entrySet()) {
-                if (hash(it.getKey()) == bucket_pos)
-                    buckets.get(bucket_pos).inserir(it.getKey(), it.getValue());
-                else 
-                    buckets.get(index_novo).inserir(it.getKey(), it.getValue());
-            }
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            index_diff = 1 << profundidade_local;
-            dir_size = 1 << profundidade_global;
-
-            for ( i = index_novo - index_diff; i >= 0; i -= index_diff)
-                buckets.add(i, buckets.get(index_novo));
-            for ( i = index_novo + index_diff; i < dir_size; i += index_diff)
-                buckets.add(i, buckets.get(index_novo));
-            for (Map.Entry <Integer, Long> it : temp.entrySet())
-                inserir( it.getKey(), it.getValue(), true);
-
+            index_novo = getNovoIndex (bucket_pos, profundidade_local);
+            mapDir.replace(index_novo, mapDir.get(index_novo), atualizaPtr ());
+            //buckets.get(index_novo).aumentaProfundidade();
         }
-    
-        void merge (int bucket_pos) {
-            int profundidade_local;
-            int pair_index;
-            int index_diff;
-            int dir_size;
-            int i;
 
-            profundidade_local = buckets.get(bucket_pos).getProfundidade();
-            pair_index = pairIndex(bucket_pos, profundidade_local);
-            index_diff = 1 << profundidade_local;
-            dir_size = 1 << profundidade_global;
-
-            if( buckets.get(pair_index).getProfundidade() == profundidade_local )
-            {
-                buckets.get(pair_index).diminuiProfundidade();
-                buckets.remove(bucket_pos);
-                buckets.add(bucket_pos, buckets.get(pair_index));
-                for( i = bucket_pos - index_diff; i >= 0; i -= index_diff)
-                    buckets.add(i, buckets.get(pair_index));
-                for( i = bucket_pos + index_diff; i < dir_size; i += index_diff )
-                    buckets.add(i, buckets.get(pair_index));
-            }
+        int getProfundidadeGlobal () throws IOException {
+            arqDir.seek(0);
+            return arqDir.readInt();
         }
-    
 
     }
 }

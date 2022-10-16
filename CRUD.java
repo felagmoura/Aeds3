@@ -14,7 +14,7 @@ public class CRUD {
     //-------------------------------------------------------------------//
     protected final int INT_TAM = 4;
     protected final int CHAR_TAM = 2;
-    protected final String PATH = "hexa_desordenado copy.db";
+    protected final String PATH = "hexa_desordenado.db";
 
     protected final long NUM_REGISTROS_END = 0;
     protected int num_registros;
@@ -154,7 +154,7 @@ public class CRUD {
         atualizar_cabecalho(USUARIOS_ATIVOS_END, ++num_usuarios_ativos);
 
         arquivo.seek(arquivo.length());
-
+        
         writeRegistro(registro);
     }
 
@@ -183,7 +183,7 @@ public class CRUD {
         for (int i = 0; i < num_registros && ptr < arquivo.length(); i++, ptr += len_registro + INT_TAM + CHAR_TAM) {
             
             arquivo.seek(ptr);
-            
+
             lapide = arquivo.readChar();
             len_registro = arquivo.readInt();
 
