@@ -29,7 +29,7 @@ public class Main {
         
         for (int i = 0; i < 10; i++)
             he.diretorio.inserir(i, i+5);
-                 
+                  
         do {
             opcao = menu_opcoes ();
             op = determina_operacao(opcao);
