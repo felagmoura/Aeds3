@@ -33,6 +33,7 @@ public class CRUD {
     protected byte[] registro;
     protected Conta temp;
     protected long ptr = INICIO_REGISTROS;
+    protected long ptro;
 
     protected static BTree arvore = new BTree<>();
 
@@ -89,6 +90,7 @@ public class CRUD {
                 idConta = temp.getID();
                 arvore.insert(idConta, pos); // chama a funcao de insercao na arvore com os valores especificos em cada
                                              // chamada
+                System.out.println("Inserido na funcaoo createBTree: ID: " + temp.getID() + "Posicao: " + pos);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,8 +158,9 @@ public class CRUD {
         Conta tmp = new Conta();
         Conta conta_procurada = new Conta();
         try{
-            pos = (long) arvore.search(id); // pega a posicao do registro
+           ptro = pos = (long) arvore.search(id);// pega a posicao do registro
         }catch (Exception e){
+            e.printStackTrace();
             return tmp;
         }
         arquivo.seek(pos); // vai ate a posicao do registro
@@ -316,7 +319,7 @@ public class CRUD {
         temp = buscar(id);//buscarUsandoArvore(id); //busca por id na arvore b+
 
         if (temp.id == id) {
-            arquivo.seek(ptr);
+            arquivo.seek(ptro);
             arquivo.writeChar('*');
 
             atualizar_cabecalho(USUARIOS_ATIVOS_END, --num_usuarios_ativos);
