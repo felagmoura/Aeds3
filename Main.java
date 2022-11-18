@@ -1,7 +1,10 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.Scanner;
+
+//===========================================================================================================//
+// MAIN
+//===========================================================================================================//
 
 public class Main {
     
@@ -19,18 +22,12 @@ public class Main {
 
         Conta conta;
         Operacao op;
-
         
         CRUD arquivo = new CRUD();
-        arquivo.createBTree();
+        //arquivo.createBTree();
         OrdenacaoExterna ordenar = new OrdenacaoExterna (arquivo);
-
-        HashExtensivel he = new HashExtensivel ();
-        
-        for (int i = 0; i < 10; i++)
-            he.diretorio.inserir(i, i+5);
-                 
-        do {
+                         
+        do { // executa operacao a partir do comando digitado
             opcao = menu_opcoes ();
             op = determina_operacao(opcao);
             
@@ -61,9 +58,6 @@ public class Main {
                 case Ler_Registro:
                     id = get_id();
                     arquivo.ler_registro(id);
-
-                  // System.out.println("Posição do ID: "+ (long)CRUD.arvore.search(id));
-                  // arquivo.ler_registro((long)CRUD.arvore.search(id));
                     break;
 
                 case Imprimir_Arquivos:
@@ -80,9 +74,13 @@ public class Main {
                     arquivo.excluir(id);
                     break;
 
-                case Reiniciar_Arquivo:
-                    arquivo.resetar_arquivo();
+                case Ordenar:
+                    ordenar.intercalacao_balanceada();
                     break;
+                
+                case Reiniciar_Arquivo:
+                arquivo.resetar_arquivo();
+                break;
 
                 case Encerrar:
                     break;
@@ -92,7 +90,12 @@ public class Main {
         scr.close();
     }
 
+    // -------------------------------------------------------------------//
+    // ------------------------- FUNCOES ---------------------------------//
+    // -------------------------------------------------------------------//
 
+    // -------------------------------------------------------------------//
+    // CARREGA MENU DE OPCOES NO TERMINAL
     public static char menu_opcoes () {
         char opcao;
         
@@ -119,6 +122,8 @@ public class Main {
         return opcao;
     }
 
+    // -------------------------------------------------------------------//
+    // DADO O COMANDO DO USUARIO RETORNA O VALOR ENUM QUE REPRESENTA A OPERACAO
     public static Operacao determina_operacao (char opcao) throws Exception, IOException {
         Operacao op = null;
 
@@ -201,6 +206,8 @@ public class Main {
         return op;
     }
 
+    // -------------------------------------------------------------------//
+    // COLETAm OS DADOS DO USUARIO
     public static Conta preencher_dados_conta (Conta conta, CRUD arquivo) throws IOException, Exception {
         System.out.print("// Preencha com seus dados: \n"
                         + "// Nome: ");
@@ -250,6 +257,8 @@ public class Main {
         return conta;
     }
     
+    // -------------------------------------------------------------------//
+    // FUNCOES QUE RECEBEM OU TRATAM INPUTS DO USUARIO
     public static int get_id () throws Exception {
         String input;
 
@@ -383,5 +392,5 @@ public class Main {
     private static boolean valida_str (int length) {
         return length > 0;
     }
-
+    // -------------------------------------------------------------------//
 }

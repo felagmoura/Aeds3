@@ -13,7 +13,7 @@ public class CRUD {
     // -------------------------------------------------------------------//
     protected final int INT_TAM = 4;
     protected final int CHAR_TAM = 2;
-    protected final String PATH = "hexa_desordenado.db";
+    protected final String PATH = "hexa_desordenado copy.db";
 
     protected final long NUM_REGISTROS_END = 0;
     protected int num_registros;
@@ -63,6 +63,7 @@ public class CRUD {
 
     // funcao para recriar arvore B+ em memória primária a partir do arquivo de
     // registros
+    /*
     public void createBTree() {
         try {
             temp = new Conta();
@@ -93,7 +94,7 @@ public class CRUD {
             e.printStackTrace();
         }
     }
-
+    */
     // -------------------------------------------------------------------//
     // PREENCHE O CABECALHO
 
@@ -240,8 +241,8 @@ public class CRUD {
      * temp.imprimir();
      * else
      * System.out.println("//\n  ======================================\n"
-     * + "  //     ESTE REGISTRO NAO EXISTE     //\n"
-     * + "  ======================================\n//");
+     *                      + "  //     ESTE REGISTRO NAO EXISTE     //\n"
+     *                      + "  ======================================\n//");
      */
     
 
@@ -274,13 +275,14 @@ public class CRUD {
     // ATUALIZA DADOS DO REGISTRO
 
     public void atualizar(int id, Conta conta_atualizada) throws IOException {
-        Conta temp = buscarUsandoArvore(id); //busca por id na arvore b+
+        temp = buscar(id);
+        //Conta temp = buscarUsandoArvore(id); //busca por id na arvore b+
         byte[] novo_registro;
 
         if (temp.id != id)
             System.out.println("//\n  ======================================\n"
-                    + "  //     ESTE REGISTRO NAO EXISTE     //\n"
-                    + "  ======================================\n//");
+                                + "  //     ESTE REGISTRO NAO EXISTE     //\n"
+                                + "  ======================================\n//");
         else {
             conta_atualizada.id = temp.id;
             conta_atualizada.transferenciasRealizadas = temp.transferenciasRealizadas;
@@ -311,7 +313,7 @@ public class CRUD {
     // EXCLUI REGISTRO
 
     public void excluir(int id) throws IOException {
-        temp = buscarUsandoArvore(id); //busca por id na arvore b+
+        temp = buscar(id);//buscarUsandoArvore(id); //busca por id na arvore b+
 
         if (temp.id == id) {
             arquivo.seek(ptr);
@@ -321,19 +323,18 @@ public class CRUD {
             atualizar_cabecalho(NUM_EXCLUIDOS_END, ++num_excluidos);
 
             System.out.println("//\n  ===========================================\n"
-                    + "  //     REGISTRO EXCLUIDO COM SUCESSO     //\n"
-                    + "  ===========================================\n//");
+                                + "  //     REGISTRO EXCLUIDO COM SUCESSO     //\n"
+                                + "  ===========================================\n//");
         }
 
         else
             System.out.println("//\n  ======================================\n"
-                    + "  //     ESTE REGISTRO NAO EXISTE     //\n"
-                    + "  ======================================\n//");
+                                + "  //     ESTE REGISTRO NAO EXISTE     //\n"
+                                + "  ======================================\n//");
     }
 
     // -------------------------------------------------------------------//
     // TRANFERE UM VALOR DE UM REGISTRO PARA OUTRO
-
     public void tranferir(int id_pagador, int id_recebedor, float valor) throws IOException {
         Conta pagador = buscar(id_pagador);
         long ptr_pagador = ptr;
@@ -343,20 +344,20 @@ public class CRUD {
 
         if (pagador.saldo < valor)
             System.out.println("//\n  ================================\n"
-                    + "  //     SALDO INSUFICIENTE     //\n"
-                    + "  ================================\n//");
+                                + "  //     SALDO INSUFICIENTE     //\n"
+                                + "  ================================\n//");
         else if (pagador.id != id_pagador)
             System.out.println("//\n  ============================================\n"
-                    + "  //     REGISTRO DO PAGADOR NAO EXISTE     //\n"
-                    + "  ============================================\n//");
+                                + "  //     REGISTRO DO PAGADOR NAO EXISTE     //\n"
+                                + "  ============================================\n//");
         else if (recebedor.id != id_recebedor)
             System.out.println("//\n  ==============================================\n"
-                    + "  //     REGISTRO DO RECEBEDOR NAO EXISTE     //\n"
-                    + "  ==============================================\n//");
+                                + "  //     REGISTRO DO RECEBEDOR NAO EXISTE     //\n"
+                                + "  ==============================================\n//");
         else {
             System.out.println("//\n  ================================================\n"
-                    + "  //     TRANFERENCIA REALIZADA COM SUCESSO     //\n"
-                    + "  ================================================\n//");
+                                + "  //     TRANFERENCIA REALIZADA COM SUCESSO     //\n"
+                                + "  ================================================\n//");
 
             pagador.saldo -= valor;
             pagador.transferenciasRealizadas++;
@@ -377,6 +378,8 @@ public class CRUD {
 
     }
 
+    // -------------------------------------------------------------------//
+    // APAGA REGISTROS DO ARQUIVO E CRIA UM NOVO ARQUIVO
     public void resetar_arquivo() throws IOException {
         this.arquivo.close();
 
@@ -392,6 +395,9 @@ public class CRUD {
 
     }
 
+    // -------------------------------------------------------------------//
+    // FUNCOES DE ARQUIVO PARA DEIXAR MANIPULACAO DE UM ARQUIVO
+    // DENTRO DO OBJETO CRUD MAIS LEGIVEL 
     public void seek(long pos) throws IOException {
         arquivo.seek(pos);
     }

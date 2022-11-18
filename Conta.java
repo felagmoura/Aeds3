@@ -129,7 +129,6 @@ public class Conta {
 
     //-------------------------------------------------------------------//
     // TRANFORMA O ARRAY DE EMAILS EM UMA STRING
-
     public String emails_to_String () {
         String emails = new String();
 
