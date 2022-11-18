@@ -1,5 +1,6 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Scanner;
 
 //===========================================================================================================//
@@ -7,9 +8,10 @@ import java.util.Scanner;
 //===========================================================================================================//
 
 public class Main {
-    
+    protected static final String PATH = "hexa_desordenado copy.db";
+
     public static enum Operacao {
-        CriarConta, Transferencia, Ler_Registro, Atualizar, Deletar, Encerrar, Imprimir_Arquivos, Reiniciar_Arquivo, Ordenar;
+        CriarConta, Transferencia, Ler_Registro, Atualizar, Deletar, Encerrar, Imprimir_Arquivos, Reiniciar_Arquivo, Ordenar, Comprimir, Descomprimir;
     }
 
     static Scanner scr = new Scanner (System.in, "UTF8");
@@ -23,7 +25,9 @@ public class Main {
         Conta conta;
         Operacao op;
         
-        CRUD arquivo = new CRUD();
+        CRUD arquivo = new CRUD(PATH);
+        LZW lzw = new LZW(PATH);
+        
         //arquivo.createBTree();
         OrdenacaoExterna ordenar = new OrdenacaoExterna (arquivo);
                          
@@ -79,9 +83,17 @@ public class Main {
                     break;
                 
                 case Reiniciar_Arquivo:
-                arquivo.resetar_arquivo();
-                break;
+                    arquivo.resetar_arquivo();
+                    break;
 
+                case Comprimir:
+                    // TODO 
+                    break;
+
+                case Descomprimir:
+                    // TODO    
+                    break;
+                
                 case Encerrar:
                     break;
             }
@@ -111,6 +123,8 @@ public class Main {
                         + "// Ordenar Arquivo: ------- [O/o]\n"
                         + "// Atualizar Registro: ---- [A/a]\n"
                         + "// Deletar Registro: ------ [D/d]\n"
+                        + "// Comprimir Arquivo: ----- [Z/z]\n"
+                        + "// Descomprimir Arquivo: -- [U/u]\n"
                         + "// Encerrar Sessao: ------- [E/e]\n"
                         + "//=======================================================//\n"
                         + "//\n"
@@ -196,7 +210,20 @@ public class Main {
                                 + "//=========================================================================================//\n");
                 op = Operacao.Reiniciar_Arquivo;
                 break;
-        
+            
+            case 'Z':
+                System.out.println("//=========================================================================================//\n"
+                                + "// ARQUIVO COMPRIMIDO\n"
+                                + "//=========================================================================================//\n");
+                op = Operacao.Comprimir;
+                break;
+
+            case 'U':
+                // TODO
+                op = Operacao.Descomprimir;
+                break;
+
+            
             default:
                 throw new Exception ("\n  =========================================================\n"
                                     + "  //     DIGITE SOMENTE OS CHAR QUE APARECEM NO MENU     //\n"

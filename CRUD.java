@@ -13,7 +13,7 @@ public class CRUD {
     // -------------------------------------------------------------------//
     protected final int INT_TAM = 4;
     protected final int CHAR_TAM = 2;
-    protected final String PATH = "hexa_desordenado copy.db";
+    protected final String PATH;
 
     protected final long NUM_REGISTROS_END = 0;
     protected int num_registros;
@@ -44,7 +44,8 @@ public class CRUD {
     // -------------------------------------------------------------------//
     // CONSTRUTOR
 
-    public CRUD() throws FileNotFoundException, IOException {
+    public CRUD(String path) throws FileNotFoundException, IOException {
+        this.PATH = path;
         arquivo = new RandomAccessFile(PATH, "rw");
 
         if (arquivo.length() == 0) {
