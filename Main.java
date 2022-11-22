@@ -27,10 +27,10 @@ public class Main {
         
         CRUD arquivo = new CRUD(PATH);
         LZW lzw = new LZW(PATH);
-        
+
         //arquivo.createBTree();
         OrdenacaoExterna ordenar = new OrdenacaoExterna (arquivo);
-                         
+                       
         do { // executa operacao a partir do comando digitado
             opcao = menu_opcoes ();
             op = determina_operacao(opcao);
@@ -87,7 +87,8 @@ public class Main {
                     break;
 
                 case Comprimir:
-                    // TODO 
+                    lzw.comprimir();
+                    lzw.descomprimir(); 
                     break;
 
                 case Descomprimir:
@@ -98,7 +99,7 @@ public class Main {
                     break;
             }
         } while (op != Operacao.Encerrar);
-         
+        
         scr.close();
     }
 
