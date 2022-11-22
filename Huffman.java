@@ -129,7 +129,6 @@ public class Huffman {
         return raiz.esquerda == null && raiz.direita == null;
     }
 
-    // driver code
     public static void main(String args[]) {
 
     }
