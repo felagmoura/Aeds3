@@ -47,7 +47,8 @@ public class Huffman {
             freq.put(c, freq.getOrDefault(c, 0) + 1);
         }
         // cria uma fila de prioridade dos nos da arvore
-        // maior prioridade = menor frequencia(seguindo regra de criacao da arvore huffman)
+        // maior prioridade = menor frequencia(seguindo regra de criacao da arvore
+        // huffman)
         PriorityQueue<No> pq = new PriorityQueue<>(Comparator.comparingInt(l -> l.freq));
         // itera sobre os mapas
         for (var entry : freq.entrySet()) {
@@ -61,7 +62,8 @@ public class Huffman {
             No direita = pq.poll();
             // pega a soma da frequencia dos dois nos
             int soma = esquerda.freq + direita.freq;
-            // cria um nó pai sem char e o adiciona na fila de prioridade para continuar construindo a arvore
+            // cria um nó pai sem char e o adiciona na fila de prioridade para continuar
+            // construindo a arvore
             pq.add(new No(null, soma, esquerda, direita));
         }
         // salva ponteiro para a raiz
@@ -80,7 +82,7 @@ public class Huffman {
         }
         System.out.println("A string codificada é: " + sb);
         System.out.print("A string decodificada é: ");
-        //itera na arvore para decodar
+        // itera na arvore para decodar
         if (ehFolha(raiz)) {
             while (raiz.freq-- > 0) {
                 System.out.print(raiz.ch);
@@ -98,11 +100,11 @@ public class Huffman {
         if (raiz == null) {
             return;
         }
-        //checa se é raiz
+        // checa se é raiz
         if (ehFolha(raiz)) {
             codigoHuffman.put(raiz.ch, str.length() > 0 ? str : "1");
         }
-        //itera recursivamente
+        // itera recursivamente
         codificaData(raiz.esquerda, str + '0', codigoHuffman);
         codificaData(raiz.direita, str + '1', codigoHuffman);
     }
@@ -112,7 +114,7 @@ public class Huffman {
         if (raiz == null) {
             return index;
         }
-        //checa se é raiz
+        // checa se é raiz
         if (ehFolha(raiz)) {
             System.out.print(raiz.ch);
             return index;
@@ -130,6 +132,17 @@ public class Huffman {
     }
 
     public static void main(String args[]) {
-
+        StringBuffer buffer = new StringBuffer();
+        try {
+            final RandomAccessFile arq = new RandomAccessFile("hexa_desordenado copy.db", "rw");
+            while (arq.getFilePointer() < arq.length()) {
+                buffer.append(arq.readLine() + System.lineSeparator());
+            }
+            arq.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String contents = buffer.toString();
+        Huffman.criarArvoreHuffman(contents);
     }
 }

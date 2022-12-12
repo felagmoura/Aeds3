@@ -117,7 +117,7 @@ public class CRUD {
     // -------------------------------------------------------------------//
     // ESCREVE REGISTRO NO ARQUIVO
     private void writeRegistro(byte[] registro) throws IOException {
-        arquivo.Char(' ');
+        arquivo.writeChar(' ');
         arquivo.writeInt(registro.length);
         arquivo.write(registro);
     }
