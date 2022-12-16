@@ -16,6 +16,7 @@ public class CRUD {
     protected final int INT_TAM = 4;
     protected final int CHAR_TAM = 2;
     protected final String PATH;
+    protected final static int d = 256;
 
     protected final long NUM_REGISTROS_END = 0;
     protected int num_registros;
@@ -67,7 +68,7 @@ public class CRUD {
 
     // funcao para recriar arvore B+ em memória primária a partir do arquivo de
     // registros
-    /*
+    
     public void createBTree() {
         try {
             temp = new Conta();
@@ -99,7 +100,7 @@ public class CRUD {
             e.printStackTrace();
         }
     }
-    */
+    
     // -------------------------------------------------------------------//
     // PREENCHE O CABECALHO
 
@@ -155,6 +156,29 @@ public class CRUD {
         return conta_procurada;
     }
 
+    public void buscarCasamentoPadrao(String padrao, int hash) throws IOException {
+
+        Conta continha = new Conta();
+
+        ptr = INICIO_REGISTROS;
+        // loopa pelo registro
+        for (int i = 0; i < num_registros && ptr < arquivo.length(); i++, ptr += len_registro + INT_TAM + CHAR_TAM) { 
+
+            arquivo.seek(ptr); //posiciona o ponteiro no inicio do arquivo
+
+            lapide = arquivo.readChar();
+            len_registro = arquivo.readInt();
+
+            registro = new byte[len_registro];
+            //testa um registro por vez
+            arquivo.read(registro);
+            continha.byteArrayInput(registro);
+            String txt = continha.adicionaString();
+            //faz a pesquisa com rabin karp
+            search(padrao, txt, hash); 
+        }
+    }
+
     //funcao para fazer a busca por ID utilizando os índices na árvore B+
     private Conta buscarUsandoArvore(int id) throws IOException{
         long pos;
@@ -179,7 +203,6 @@ public class CRUD {
             conta_procurada = tmp;
         }
 
-        conta_procurada.senha = descriptografar(conta_procurada.senha);
         return conta_procurada;
     }
 
@@ -232,7 +255,8 @@ public class CRUD {
     // IMPRIME REGISTRO
 
     public void ler_registro(int id) throws IOException {
-        temp = buscarUsandoArvore(id);
+        //temp = buscarUsandoArvore(id);
+        temp = buscar(id);
 
         if (temp.id == id && lapide != '*') {
             temp.imprimir();
@@ -445,6 +469,57 @@ public class CRUD {
             j = ++j % CHAVE.length();
         }
         return res;
+    }
+
+    static void search(String padrao, String txt, int q)
+    {
+        int M = padrao.length();
+        int N = txt.length();
+        int i, j;
+        int p = 0; // valor hash do padrao
+        int t = 0; // valor hash do texto
+        int h = 1;
+        int opCount = 0;
+  
+        //calculando o valor de h
+        for (i = 0; i < M - 1; i++)
+            h = (h * d) % q;
+  
+        /*calculando o valor hash do padrao e da 
+         * primeira janela de texto
+         */
+        for (i = 0; i < M; i++) {
+            p = (d * p + padrao.charAt(i)) % q;
+            t = (d * t + txt.charAt(i)) % q;
+        }
+  
+        // anda com o padrao de texto um por um
+        for (i = 0; i <= N - M; i++) {
+  
+            // checa o valor da janela com o padrao
+            //caso bata, faz a comparaçao completa
+            if (p == t) {
+                /* checa os caracteres */
+                for (j = 0; j < M; j++) {
+                    if (txt.charAt(i + j) != padrao.charAt(j))
+                        break;
+                }
+  
+                // if p == t and pat[0...M-1] = txt[i, i+1, ...i+M-1]
+                if (j == M)
+                    System.out.println("Padrao encontrado no ID " + txt.charAt(0) + txt.charAt(1) + "\n");
+            }
+  
+            // calcula o valor hash da proxima janela 
+            // aproveitando de maneira eficiente
+            if (i < N - M) {
+                t = (d * (t - txt.charAt(i) * h) + txt.charAt(i + M)) % q;
+  
+                //converte t para positivo caso negativo
+                if (t < 0)
+                    t = (t + q);
+            }
+        }
     }
 }
 

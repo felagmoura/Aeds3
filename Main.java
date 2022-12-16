@@ -13,7 +13,7 @@ public class Main {
 
     public static enum Operacao {
         CriarConta, Transferencia, Ler_Registro, Atualizar, Deletar, Encerrar, Imprimir_Arquivos, Reiniciar_Arquivo,
-        Ordenar, Comprimir, Descomprimir;
+        Ordenar, Comprimir, Descomprimir, buscarCasamentoPadrao;
     }
 
     static Scanner scr = new Scanner(System.in, "UTF8");
@@ -110,6 +110,15 @@ public class Main {
                     lzw.descomprimir(); 
                     break;
 
+                case buscarCasamentoPadrao:
+                    System.out.println("DIGITE O PADRAO A SER PESQUISADO: ");
+                    String padrao = "";
+                    padrao = scr.nextLine();
+                    System.out.println("DIGITE O NÚMERO PRIMO HASH");
+                    int hash = 0;
+                    hash = scr.nextInt();
+                    arquivo.buscarCasamentoPadrao(padrao, hash);
+
                 case Encerrar:
                     break;
             }
@@ -140,6 +149,7 @@ public class Main {
                 + "// Deletar Registro: ------ [D/d]\n"
                 + "// Comprimir Arquivo: ----- [Z/z]\n"
                 + "// Descomprimir Arquivo: -- [U/u]\n"
+                + "// Buscar usando padrao --- [M/m]\n"
                 + "// Encerrar Sessao: ------- [E/e]\n"
                 + "//=======================================================//\n"
                 + "//\n"
@@ -234,6 +244,9 @@ public class Main {
                                 + "// ARQUIVO COMPRIMIDO\n"
                                 + "//=========================================================================================//\n");
                 op = Operacao.Comprimir;
+                break;
+            case 'M':
+                op = Operacao.buscarCasamentoPadrao;
                 break;
 
             case 'U':

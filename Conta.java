@@ -127,6 +127,22 @@ public class Conta {
                         + " // Saldo: " + df.format(this.saldo) + " //\n//");
     }
 
+    public String adicionaString() {
+        String emails = emails_to_String();
+        String resp = "";
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+
+        return + this.id
+        + " " + this.nomePessoa
+        + " " + emails
+        + " " + this.nomeUsuario
+        + " " + descriptografar(this.senha)
+        + " " + this.cpf
+        + " " + this.cidade
+        + " " + this.transferenciasRealizadas
+        + " " + df.format(this.saldo) + " //\n//";
+    }
+
     //-------------------------------------------------------------------//
     // TRANFORMA O ARRAY DE EMAILS EM UMA STRING
     public String emails_to_String () {
