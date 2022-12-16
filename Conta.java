@@ -13,7 +13,7 @@ public class Conta {
     //-------------------------------------------------------------------//
     //------------------------- ATRIBUTOS -------------------------------//
     //-------------------------------------------------------------------//
-    
+    protected static final String CHAVE = "aeds";
     protected int id;
     protected String nomePessoa;
     protected String[] emails;
@@ -120,7 +120,7 @@ public class Conta {
                         + " // Nome: " + this.nomePessoa
                         + " // Emails: " + emails
                         + "// Usuario: " + this.nomeUsuario
-                        + " // Senha: " + this.senha
+                        + " // Senha: " + descriptografar(this.senha)
                         + " // CPF: " + this.cpf
                         + " // Cidade: " + this.cidade
                         + " // Transferencias: " + this.transferenciasRealizadas
@@ -135,6 +135,36 @@ public class Conta {
         for (int i = 0; i < this.emails.length; i++) 
             emails += "/ " + i + " " + this.emails[i] + " ";
         return emails;
+    }
+
+    public static String criptografar(String texto)
+    {
+        String res = "";
+        texto = texto.toUpperCase();
+        for (int i = 0, j = 0; i < texto.length(); i++)
+        {
+            char c = texto.charAt(i);
+            if (c < 'A' || c > 'Z')
+                continue;
+            res += (char) ((c + CHAVE.charAt(j) - 2 * 'A') % 26 + 'A');
+            j = ++j % CHAVE.length();
+        }
+        return res;
+    }
+ 
+    public static String descriptografar(String texto)
+    {
+        String res = "";
+        texto = texto.toUpperCase();
+        for (int i = 0, j = 0; i < texto.length(); i++)
+        {
+            char c = texto.charAt(i);
+            if (c < 'A' || c > 'Z')
+                continue;
+            res += (char) ((c - CHAVE.charAt(j) + 26) % 26 + 'A');
+            j = ++j % CHAVE.length();
+        }
+        return res;
     }
 }
 

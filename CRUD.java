@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+
 //===========================================================================================================//
 // CRUD
 //===========================================================================================================//
@@ -11,6 +12,7 @@ public class CRUD {
     // -------------------------------------------------------------------//
     // ------------------------- ATRIBUTOS -------------------------------//
     // -------------------------------------------------------------------//
+    protected final static String CHAVE = "aeds";
     protected final int INT_TAM = 4;
     protected final int CHAR_TAM = 2;
     protected final String PATH;
@@ -149,7 +151,7 @@ public class CRUD {
                 break;
             }
         }
-
+        conta_procurada.senha = descriptografar(conta_procurada.senha);
         return conta_procurada;
     }
 
@@ -177,6 +179,7 @@ public class CRUD {
             conta_procurada = tmp;
         }
 
+        conta_procurada.senha = descriptografar(conta_procurada.senha);
         return conta_procurada;
     }
 
@@ -213,6 +216,7 @@ public class CRUD {
         ultima_id = arquivo.readInt();
 
         conta.id = ultima_id;
+        conta.senha = criptografar(conta.senha);
         registro = conta.byteArrayOutput();
 
         atualizar_cabecalho(NUM_REGISTROS_END, ++num_registros);
@@ -288,10 +292,8 @@ public class CRUD {
                                 + "  //     ESTE REGISTRO NAO EXISTE     //\n"
                                 + "  ======================================\n//");
         else {
-            conta_atualizada.id = temp.id;
-            conta_atualizada.transferenciasRealizadas = temp.transferenciasRealizadas;
             conta_atualizada.saldo = temp.saldo;
-
+            conta_atualizada.senha = criptografar(conta_atualizada.senha);
             registro = temp.byteArrayOutput();
             novo_registro = conta_atualizada.byteArrayOutput();
 
@@ -413,6 +415,38 @@ public class CRUD {
     public long getFilePointer() throws IOException {
         return arquivo.getFilePointer();
     }
+
+    
+    public static String criptografar(String texto)
+    {
+        String res = "";
+        texto = texto.toUpperCase();
+        for (int i = 0, j = 0; i < texto.length(); i++)
+        {
+            char c = texto.charAt(i);
+            if (c < 'A' || c > 'Z')
+                continue;
+            res += (char) ((c + CHAVE.charAt(j) - 2 * 'A') % 26 + 'A');
+            j = ++j % CHAVE.length();
+        }
+        return res;
+    }
+ 
+    public static String descriptografar(String texto)
+    {
+        String res = "";
+        texto = texto.toUpperCase();
+        for (int i = 0, j = 0; i < texto.length(); i++)
+        {
+            char c = texto.charAt(i);
+            if (c < 'A' || c > 'Z')
+                continue;
+            res += (char) ((c - CHAVE.charAt(j) + 26) % 26 + 'A');
+            j = ++j % CHAVE.length();
+        }
+        return res;
+    }
 }
+
 
 // ===========================================================================================================//
